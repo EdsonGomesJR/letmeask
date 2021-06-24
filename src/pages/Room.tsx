@@ -1,5 +1,6 @@
-import { FormEvent,  useState } from 'react';
+import { FormEvent,  useEffect,  useState } from 'react';
 import { useParams } from 'react-router';
+import { useHistory } from 'react-router-dom';
 
 import logoImg from '../assets/images/logo.svg';
 
@@ -21,7 +22,25 @@ export function Room(){
   const roomId = params.id;
   const [newQuestion, setNewQuestion] = useState('');
   const {questions, title} = useRoom(roomId);
+  const [blur, setBlur] = useState(true);
+  const history = useHistory();
   
+  useEffect(() => {
+
+    async function verifyClosedQuestions(){
+      const roomRef = await database.ref(`rooms/${roomId}`).get();
+  
+      if(roomRef.val().endedAt) {
+        alert('Room already closed');
+        history.push('/');
+  
+        return;
+      }
+    
+    }
+   verifyClosedQuestions();
+  
+    }, [roomId]);
 
   async function handleSendQuestion(event :FormEvent){
     event.preventDefault(); 
@@ -61,7 +80,7 @@ export function Room(){
   }
 
   return (
-    <div id="page-room">
+    <div id="page-room" style={ blur ? {filter:  'blur(8px)'} : {filter: 'none'}}>
       <header>
         <div className="content">
           <img src={logoImg} alt="LetmeAsk" />
